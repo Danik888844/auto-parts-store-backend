@@ -2,6 +2,7 @@
 using AutoParts.Business.ServiceRegistrations;
 using AutoParts.DataAccess.Contexts;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
@@ -68,18 +69,26 @@ if (Convert.ToBoolean(builder.Configuration.GetSection("IsSwaggerEnabled").Value
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
-app.UseCookiePolicy(new CookiePolicyOptions()
+app.UseStatusCodePages(async context =>
 {
-    MinimumSameSitePolicy = SameSiteMode.Lax,
-    Secure = CookieSecurePolicy.SameAsRequest,
+    if (context.HttpContext.Response.StatusCode is 404 or 405)
+    {
+        context.HttpContext.Response.ContentType = "application/json";
+        await context.HttpContext.Response.WriteAsync(JsonConvert.SerializeObject(new
+        {
+            Result = false,
+            Message = $"There is no route for this request method : {context.HttpContext.Request.Method}"
+        }));
+    }
 });
+
+app.UseHttpsRedirection();
 
 app.UseCors(builder.Configuration.GetSection("CorsLabel").Value!);
 app.UseAuthentication();
 app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();
+app.UseStaticFiles();
 
 app.Run();
