@@ -1,16 +1,20 @@
 using System.Net;
 using AutoMapper;
+using AutoParts.Core.GeneralHelpers;
+using AutoParts.Core.Results;
+using AutoParts.DataAccess.Dals;
+using AutoParts.DataAccess.Models.DatabaseModels;
+using AutoParts.DataAccess.Models.DtoModels.Category;
 using FluentValidation;
 using MediatR;
-using Newtonsoft.Json;
 
 namespace AutoParts.Business.Cqrs.Categories;
 
 public class CategoryCreateCommand : IRequest<IDataResult<object>>
 {
-    public CategoryCreateCommandDto Form { get; }
+    public CategoryFormDto Form { get; }
 
-    public CategoryCreateCommand(CategoryCreateCommandDto form)
+    public CategoryCreateCommand(CategoryFormDto form)
     {
         Form = form;
     }
@@ -18,16 +22,18 @@ public class CategoryCreateCommand : IRequest<IDataResult<object>>
     {
         #region DI
 
-        private readonly IMessagesRepository _messagesRepository;
         private readonly ICategoryDal _categoryDal;
-       
+        private readonly IValidator<CategoryFormDto> _validator;
+        private readonly IXssRepository _xssRepository;
+        private readonly IMapper _mapper;
 
-        public CategoryCreateCommandHandler(IMessagesRepository messagesRepository, ICategoryDal categoryDal,
-            IValidator<CategoryCreateCommandDto> validator)
+        public CategoryCreateCommandHandler(ICategoryDal categoryDal, IValidator<CategoryFormDto> validator, 
+            IXssRepository xssRepository, IMapper mapper)
         {
-            _messagesRepository = messagesRepository;
             _categoryDal = categoryDal;
             _validator = validator;
+            _xssRepository = xssRepository;
+            _mapper = mapper;
         }
 
         #endregion
@@ -36,12 +42,10 @@ public class CategoryCreateCommand : IRequest<IDataResult<object>>
         {            
             var validationOfForm = await _validator.ValidateAsync(request.Form, cancellationToken);
             if (!validationOfForm.IsValid)
-                return new ErrorDataResult<object>(_messagesRepository.FormValidation(), HttpStatusCode.BadRequest,
+                return new ErrorDataResult<object>("Form validation error", HttpStatusCode.BadRequest,
                     validationOfForm.Errors.Select(e => e.ErrorMessage).ToList());
 
-            request.Form.name = _xssRepository.Execute(request.Form.name);
-            request.Form.description = _xssRepository.Execute(request.Form.description);
-            request.Form.comments = _xssRepository.Execute(request.Form.comments);
+            request.Form.Name = _xssRepository.Execute(request.Form.Name);
 
             var source = _mapper.Map<Category>(request.Form);
 
@@ -49,8 +53,7 @@ public class CategoryCreateCommand : IRequest<IDataResult<object>>
 
             var categoryDto = _mapper.Map<CategoryDto>(source);
 
-            return new SuccessDataResult<object>(categoryDto,
-                _messagesRepository.Created($"{source.Name}"));
+            return new SuccessDataResult<object>(categoryDto,$"Created: {source.Name}");
         } 
     }
 }

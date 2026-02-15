@@ -1,4 +1,5 @@
 ﻿using AutoParts.DataAccess.Contexts;
+using AutoParts.DataAccess.Dals;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +26,7 @@ public static class DalServiceRegistrations
 
         #region Dals
         
-        //services.AddScoped<IProductDal, ProductDal>();
+        services.AddScoped<ICategoryDal, CategoryDal>();
         
         #endregion
 

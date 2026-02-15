@@ -1,5 +1,8 @@
 using System.Net;
 using AutoMapper;
+using AutoParts.Core.Results;
+using AutoParts.DataAccess.Dals;
+using AutoParts.DataAccess.Models.DtoModels.Category;
 using FluentValidation;
 using MediatR;
 
@@ -18,16 +21,11 @@ public class CategoryGetByCommand : IRequest<IDataResult<CategoryDto>>
     {
         #region DI
 
-        private readonly IValidator<int> _validator;
-        private readonly IMessagesRepository _messagesRepository;
         private readonly ICategoryDal _categoryDal;
         private readonly IMapper _mapper;
         
-        public CategoryGetByCommandHandler(IValidator<int> validator, IMessagesRepository messagesRepository,
-            ICategoryDal categoryDal, IMapper mapper)
+        public CategoryGetByCommandHandler(ICategoryDal categoryDal, IMapper mapper)
         {
-            _validator = validator;
-            _messagesRepository = messagesRepository;
             _categoryDal = categoryDal;
             _mapper = mapper;
         }
@@ -38,7 +36,7 @@ public class CategoryGetByCommand : IRequest<IDataResult<CategoryDto>>
         {
             var source = await _categoryDal.GetAsync(i => i.Id == request.Id);
             if (source == null)
-                return new ErrorDataResult<CategoryDto>(_messagesRepository.NotFound(), HttpStatusCode.NotFound);
+                return new ErrorDataResult<CategoryDto>("Record not found", HttpStatusCode.NotFound);
 
             return new SuccessDataResult<CategoryDto>(_mapper.Map<CategoryDto>(source));
         }

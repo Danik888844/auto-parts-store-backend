@@ -1,8 +1,6 @@
 using System.Net;
-using FluentValidation;
-using AutoMapper;
-using Newtonsoft.Json;
-using Hangfire;
+using AutoParts.Core.Results;
+using AutoParts.DataAccess.Dals;
 using MediatR;
 
 namespace AutoParts.Business.Cqrs.Categories;
@@ -19,32 +17,22 @@ public class CategoryDeleteCommand : IRequest<IDataResult<object>>
     public class CategoryDeleteCommandHandler : IRequestHandler<CategoryDeleteCommand,
         IDataResult<object>>
     {
-        private readonly IValidator<int> _validator;
         private readonly ICategoryDal _categoryDal;
-        private readonly IMessagesRepository _messagesRepository;
 
-        public CategoryDeleteCommandHandler(IValidator<int> validator, ICategoryDal categoryDal,
-            IMessagesRepository messagesRepository)
+        public CategoryDeleteCommandHandler(ICategoryDal categoryDal)
         {
-            _validator = validator;
             _categoryDal = categoryDal;
-            _messagesRepository = messagesRepository;
         }
 
         public async Task<IDataResult<object>> Handle(CategoryDeleteCommand request, CancellationToken cancellationToken)
         {   
-            var validationOfForm = await _validator.ValidateAsync(request.Id);
-            if (!validationOfForm.IsValid)
-                return new ErrorDataResult<object>(_messagesRepository.FormValidation(), HttpStatusCode.BadRequest,
-                    validationOfForm.Errors.Select(e => e.ErrorMessage).ToList());
-
             var source = await _categoryDal.GetAsync(i => i.Id == request.Id);
             if (source == null)
-                return new ErrorDataResult<object>(_messagesRepository.NotFound(), HttpStatusCode.NotFound);
+                return new ErrorDataResult<object>("Record not found", HttpStatusCode.NotFound);
 
             await _categoryDal.DeleteAsync(source);
 
-            return new SuccessDataResult<object>(_messagesRepository.Deleted());
+            return new SuccessDataResult<object>("Deleted");
         }
     }
 }

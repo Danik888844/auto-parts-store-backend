@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <Folder Include="Cqrs\" />
-    <Folder Include="Validators\" />
   </ItemGroup>
 
 </Project>

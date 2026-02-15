@@ -7,3 +7,8 @@ public class CategoryDto : DtoBaseEntity
     public string Name { get; set; } = string.Empty;
     public List<ProductDto> Products { get; set; } = [];
 }
+
+public class CategoryFormDto
+{
+    public required string Name { get; set; }
+}

@@ -82,6 +82,36 @@ where TContext: DbContext, new()
             ? await _context.Set<TEntity>().OrderByDescending(x => x.Id).ToListAsync()
             : await _context.Set<TEntity>().Where(filter).OrderByDescending(x => x.Id).ToListAsync();
     }
+    
+    public async Task<PagedResult<TEntity>> GetAllPagedAsync(
+        Expression<Func<TEntity, bool>>? filter = null,
+        int pageNumber = 1,
+        int pageSize = 20)
+    {
+        if (pageNumber < 1) pageNumber = 1;
+        if (pageSize < 1) pageSize = 20;
+
+        IQueryable<TEntity> query = _context.Set<TEntity>().AsNoTracking();
+
+        if (filter != null)
+            query = query.Where(filter);
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(x => x.Id)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResult<TEntity>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+    }
 
     public async Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> filter)
     {

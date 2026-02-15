@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using AutoParts.Business.Validators.Category;
+using AutoParts.DataAccess.Models.DtoModels;
+using FluentValidation;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -9,9 +12,11 @@ public static class FluentValidationServiceRegistrations
     public static IServiceCollection AddFluentValidationServices(this IServiceCollection services,
         IConfiguration configuration, IHostEnvironment environment)
     {
+        services.AddValidatorsFromAssemblyContaining<PaginationFormDto>();
+        
         #region Category
 
-        //services.AddValidatorsFromAssemblyContaining<UserCreateCommandValidator>();
+        services.AddValidatorsFromAssemblyContaining<CategoryCreateFormValidator>();
 
         #endregion
         
