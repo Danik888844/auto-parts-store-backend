@@ -9,10 +9,18 @@ public static class MediatrServiceRegistrations
     public static IServiceCollection AddMediatrServices(this IServiceCollection services, IConfiguration configuration,
         IHostEnvironment environment)
     {
-        #region User
+        #region Category
 
-        /*services.AddMediatR(cnf =>
-            cnf.RegisterServicesFromAssemblies(typeof(UserCreateCommand.Handler).Assembly));*/
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(CategoryCreateCommand.CategoryCreateCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(CategoryDeleteCommand.CategoryDeleteCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(CategoryEditCommand.CategoryEditCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(CategoryGetByCommand.CategoryGetByCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(CategoryGetListCommand.CategoryGetListCommandHandler).Assembly));
 
         #endregion
         

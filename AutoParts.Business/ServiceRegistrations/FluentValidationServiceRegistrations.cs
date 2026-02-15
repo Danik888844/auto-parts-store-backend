@@ -9,7 +9,7 @@ public static class FluentValidationServiceRegistrations
     public static IServiceCollection AddFluentValidationServices(this IServiceCollection services,
         IConfiguration configuration, IHostEnvironment environment)
     {
-        #region User
+        #region Category
 
         //services.AddValidatorsFromAssemblyContaining<UserCreateCommandValidator>();
 
