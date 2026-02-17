@@ -1,6 +1,7 @@
-﻿using AutoMapper;
+using AutoMapper;
 using AutoParts.DataAccess.Models.DatabaseModels;
 using AutoParts.DataAccess.Models.DtoModels.Category;
+using AutoParts.DataAccess.Models.DtoModels.Manufacturer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,6 +17,9 @@ public static class AutoMapServiceRegistrations
         services.AddSingleton(new MapperConfiguration(config =>
         {
             config.CreateMap<Category, CategoryDto>().ReverseMap();
+            config.CreateMap<Category, CategoryFormDto>().ReverseMap();
+            config.CreateMap<Manufacturer, ManufacturerDto>().ReverseMap();
+            config.CreateMap<Manufacturer, ManufacturerFormDto>().ReverseMap();
         },
         NullLoggerFactory.Instance).CreateMapper());
 
