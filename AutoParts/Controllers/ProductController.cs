@@ -19,6 +19,12 @@ public class ProductController : BaseController
         _mediator = mediator;
     }
 
+    [HttpGet("check-sku")]
+    public async Task<IActionResult> CheckSku([FromQuery] string sku, [FromQuery] int? excludeId = null)
+    {
+        return Return(await _mediator.Send(new ProductCheckSkuCommand(sku, excludeId)));
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(int id)
     {
