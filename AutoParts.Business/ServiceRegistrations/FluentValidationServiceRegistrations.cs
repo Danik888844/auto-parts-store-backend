@@ -3,6 +3,9 @@ using AutoParts.Business.Validators.Client;
 using AutoParts.Business.Validators.Manufacturer;
 using AutoParts.Business.Validators.Product;
 using AutoParts.Business.Validators.Supplier;
+using AutoParts.Business.Validators.Vehicle;
+using AutoParts.Business.Validators.VehicleBrand;
+using AutoParts.Business.Validators.VehicleModel;
 using AutoParts.DataAccess.Models.DtoModels;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
@@ -46,6 +49,24 @@ public static class FluentValidationServiceRegistrations
         #region Client
 
         services.AddValidatorsFromAssemblyContaining<ClientCreateFormValidator>();
+
+        #endregion
+
+        #region VehicleBrand
+
+        services.AddValidatorsFromAssemblyContaining<VehicleBrandFormValidator>();
+
+        #endregion
+
+        #region VehicleModel
+
+        services.AddValidatorsFromAssemblyContaining<VehicleModelFormValidator>();
+
+        #endregion
+
+        #region Vehicle
+
+        services.AddValidatorsFromAssemblyContaining<VehicleFormValidator>();
 
         #endregion
         

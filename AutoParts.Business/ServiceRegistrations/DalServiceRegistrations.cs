@@ -31,6 +31,9 @@ public static class DalServiceRegistrations
         services.AddScoped<IManufacturerDal, ManufacturerDal>();
         services.AddScoped<ISupplierDal, SupplierDal>();
         services.AddScoped<IClientDal, ClientDal>();
+        services.AddScoped<IVehicleBrandDal, VehicleBrandDal>();
+        services.AddScoped<IVehicleModelDal, VehicleModelDal>();
+        services.AddScoped<IVehicleDal, VehicleDal>();
         
         #endregion
 

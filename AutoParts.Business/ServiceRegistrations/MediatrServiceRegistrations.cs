@@ -3,6 +3,9 @@ using AutoParts.Business.Cqrs.Clients;
 using AutoParts.Business.Cqrs.Manufacturers;
 using AutoParts.Business.Cqrs.Products;
 using AutoParts.Business.Cqrs.Suppliers;
+using AutoParts.Business.Cqrs.VehicleBrands;
+using AutoParts.Business.Cqrs.VehicleModels;
+using AutoParts.Business.Cqrs.Vehicles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -71,6 +74,51 @@ public static class MediatrServiceRegistrations
             cnf.RegisterServicesFromAssemblies(typeof(SupplierGetByCommand.SupplierGetByCommandHandler).Assembly));
         services.AddMediatR(cnf =>
             cnf.RegisterServicesFromAssemblies(typeof(SupplierGetListCommand.SupplierGetListCommandHandler).Assembly));
+
+        #endregion
+
+        #region VehicleBrand
+
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(VehicleBrandCreateCommand.VehicleBrandCreateCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(VehicleBrandDeleteCommand.VehicleBrandDeleteCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(VehicleBrandEditCommand.VehicleBrandEditCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(VehicleBrandGetByCommand.VehicleBrandGetByCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(VehicleBrandGetListCommand.VehicleBrandGetListCommandHandler).Assembly));
+
+        #endregion
+
+        #region VehicleModel
+
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(VehicleModelCreateCommand.VehicleModelCreateCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(VehicleModelDeleteCommand.VehicleModelDeleteCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(VehicleModelEditCommand.VehicleModelEditCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(VehicleModelGetByCommand.VehicleModelGetByCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(VehicleModelGetListCommand.VehicleModelGetListCommandHandler).Assembly));
+
+        #endregion
+
+        #region Vehicle
+
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(VehicleCreateCommand.VehicleCreateCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(VehicleDeleteCommand.VehicleDeleteCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(VehicleEditCommand.VehicleEditCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(VehicleGetByCommand.VehicleGetByCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(VehicleGetListCommand.VehicleGetListCommandHandler).Assembly));
 
         #endregion
 

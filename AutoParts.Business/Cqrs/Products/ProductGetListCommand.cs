@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Net;
 using AutoMapper;
+using AutoParts.Core.GeneralHelpers;
 using AutoParts.Core.Results;
 using AutoParts.DataAccess.Dals;
 using AutoParts.DataAccess.Models.DatabaseModels;
