@@ -1,6 +1,7 @@
 using AutoParts.Business.Cqrs.Categories;
 using AutoParts.Business.Cqrs.Clients;
 using AutoParts.Business.Cqrs.Manufacturers;
+using AutoParts.Business.Cqrs.Products;
 using AutoParts.Business.Cqrs.Suppliers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,21 @@ public static class MediatrServiceRegistrations
             cnf.RegisterServicesFromAssemblies(typeof(CategoryGetByCommand.CategoryGetByCommandHandler).Assembly));
         services.AddMediatR(cnf =>
             cnf.RegisterServicesFromAssemblies(typeof(CategoryGetListCommand.CategoryGetListCommandHandler).Assembly));
+
+        #endregion
+
+        #region Product
+
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(ProductCreateCommand.ProductCreateCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(ProductDeleteCommand.ProductDeleteCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(ProductEditCommand.ProductEditCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(ProductGetByCommand.ProductGetByCommandHandler).Assembly));
+        services.AddMediatR(cnf =>
+            cnf.RegisterServicesFromAssemblies(typeof(ProductGetListCommand.ProductGetListCommandHandler).Assembly));
 
         #endregion
 

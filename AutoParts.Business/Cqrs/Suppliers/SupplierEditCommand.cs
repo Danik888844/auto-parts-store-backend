@@ -43,7 +43,7 @@ public class SupplierEditCommand : IRequest<IDataResult<object>>
                 return new ErrorDataResult<object>("Form validation error", HttpStatusCode.BadRequest,
                     validationOfForm.Errors.Select(e => e.ErrorMessage).ToList());
 
-            var source = await _supplierDal.GetAsync(i => i.Id == request.Id);
+            var source = await _supplierDal.GetAsync(i => i.Id == request.Id && !i.IsDeleted);
             if (source == null)
                 return new ErrorDataResult<object>("Record not found", HttpStatusCode.NotFound);
 

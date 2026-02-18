@@ -33,7 +33,7 @@ public class SupplierGetByCommand : IRequest<IDataResult<SupplierDto>>
 
         public async Task<IDataResult<SupplierDto>> Handle(SupplierGetByCommand request, CancellationToken cancellationToken)
         {
-            var source = await _supplierDal.GetAsync(i => i.Id == request.Id);
+            var source = await _supplierDal.GetAsync(i => i.Id == request.Id && !i.IsDeleted);
             if (source == null)
                 return new ErrorDataResult<SupplierDto>("Record not found", HttpStatusCode.NotFound);
 

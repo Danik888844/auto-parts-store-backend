@@ -26,11 +26,12 @@ public class CategoryDeleteCommand : IRequest<IDataResult<object>>
 
         public async Task<IDataResult<object>> Handle(CategoryDeleteCommand request, CancellationToken cancellationToken)
         {   
-            var source = await _categoryDal.GetAsync(i => i.Id == request.Id);
+            var source = await _categoryDal.GetAsync(i => i.Id == request.Id && !i.IsDeleted);
             if (source == null)
                 return new ErrorDataResult<object>("Record not found", HttpStatusCode.NotFound);
 
-            await _categoryDal.DeleteAsync(source);
+            source.IsDeleted = true;
+            await _categoryDal.UpdateAsync(source);
 
             return new SuccessDataResult<object>("Deleted");
         }

@@ -27,6 +27,7 @@ public static class DalServiceRegistrations
         #region Dals
         
         services.AddScoped<ICategoryDal, CategoryDal>();
+        services.AddScoped<IProductDal, ProductDal>();
         services.AddScoped<IManufacturerDal, ManufacturerDal>();
         services.AddScoped<ISupplierDal, SupplierDal>();
         services.AddScoped<IClientDal, ClientDal>();

@@ -33,7 +33,7 @@ public class ClientGetByCommand : IRequest<IDataResult<ClientDto>>
 
         public async Task<IDataResult<ClientDto>> Handle(ClientGetByCommand request, CancellationToken cancellationToken)
         {
-            var source = await _clientDal.GetAsync(i => i.Id == request.Id);
+            var source = await _clientDal.GetAsync(i => i.Id == request.Id && !i.IsDeleted);
             if (source == null)
                 return new ErrorDataResult<ClientDto>("Record not found", HttpStatusCode.NotFound);
 

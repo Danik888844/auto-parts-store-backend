@@ -33,7 +33,7 @@ public class ManufacturerGetByCommand : IRequest<IDataResult<ManufacturerDto>>
 
         public async Task<IDataResult<ManufacturerDto>> Handle(ManufacturerGetByCommand request, CancellationToken cancellationToken)
         {
-            var source = await _manufacturerDal.GetAsync(i => i.Id == request.Id);
+            var source = await _manufacturerDal.GetAsync(i => i.Id == request.Id && !i.IsDeleted);
             if (source == null)
                 return new ErrorDataResult<ManufacturerDto>("Record not found", HttpStatusCode.NotFound);
 

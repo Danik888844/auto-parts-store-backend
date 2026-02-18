@@ -46,14 +46,14 @@ public class ClientGetListCommand : IRequest<IDataResult<object>>
                 return new ErrorDataResult<object>("Form validation error", HttpStatusCode.BadRequest,
                     validationOfForm.Errors.Select(e => e.ErrorMessage).ToList());
 
-            Expression<Func<Client, bool>>? filter = null;
+            Expression<Func<Client, bool>> filter = x => !x.IsDeleted;
             if (!string.IsNullOrWhiteSpace(request.Form.Search))
             {
                 var s = request.Form.Search.Trim().ToLower();
-                filter = x => x.FullName.ToLower().Contains(s)
+                filter = x => !x.IsDeleted && (x.FullName.ToLower().Contains(s)
                     || (x.Phone != null && x.Phone.ToLower().Contains(s))
                     || (x.Email != null && x.Email.ToLower().Contains(s))
-                    || (x.Notes != null && x.Notes.ToLower().Contains(s));
+                    || (x.Notes != null && x.Notes.ToLower().Contains(s)));
             }
 
             var source = await _clientDal.GetAllPagedAsync(filter, request.Form.PageNumber, request.Form.ViewSize);

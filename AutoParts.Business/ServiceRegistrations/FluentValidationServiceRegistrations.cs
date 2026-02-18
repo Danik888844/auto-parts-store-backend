@@ -1,6 +1,7 @@
 using AutoParts.Business.Validators.Category;
 using AutoParts.Business.Validators.Client;
 using AutoParts.Business.Validators.Manufacturer;
+using AutoParts.Business.Validators.Product;
 using AutoParts.Business.Validators.Supplier;
 using AutoParts.DataAccess.Models.DtoModels;
 using FluentValidation;
@@ -20,6 +21,13 @@ public static class FluentValidationServiceRegistrations
         #region Category
 
         services.AddValidatorsFromAssemblyContaining<CategoryCreateFormValidator>();
+
+        #endregion
+
+        #region Product
+
+        services.AddValidatorsFromAssemblyContaining<ProductFormCreateValidator>();
+        services.AddValidatorsFromAssemblyContaining<ProductFormUpdateValidator>();
 
         #endregion
 

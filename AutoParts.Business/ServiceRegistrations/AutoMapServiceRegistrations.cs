@@ -3,6 +3,7 @@ using AutoParts.DataAccess.Models.DatabaseModels;
 using AutoParts.DataAccess.Models.DtoModels.Category;
 using AutoParts.DataAccess.Models.DtoModels.Manufacturer;
 using AutoParts.DataAccess.Models.DtoModels.Client;
+using AutoParts.DataAccess.Models.DtoModels.Product;
 using AutoParts.DataAccess.Models.DtoModels.Supplier;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +21,9 @@ public static class AutoMapServiceRegistrations
         {
             config.CreateMap<Category, CategoryDto>().ReverseMap();
             config.CreateMap<Category, CategoryFormDto>().ReverseMap();
+
+            config.CreateMap<Product, ProductDto>().ReverseMap();
+            config.CreateMap<Product, ProductFormCreateDto>().ReverseMap();
             
             config.CreateMap<Manufacturer, ManufacturerDto>().ReverseMap();
             config.CreateMap<Manufacturer, ManufacturerFormDto>().ReverseMap();

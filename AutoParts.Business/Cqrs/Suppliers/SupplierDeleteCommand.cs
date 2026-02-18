@@ -25,11 +25,12 @@ public class SupplierDeleteCommand : IRequest<IDataResult<object>>
 
         public async Task<IDataResult<object>> Handle(SupplierDeleteCommand request, CancellationToken cancellationToken)
         {
-            var source = await _supplierDal.GetAsync(i => i.Id == request.Id);
+            var source = await _supplierDal.GetAsync(i => i.Id == request.Id && !i.IsDeleted);
             if (source == null)
                 return new ErrorDataResult<object>("Record not found", HttpStatusCode.NotFound);
 
-            await _supplierDal.DeleteAsync(source);
+            source.IsDeleted = true;
+            await _supplierDal.UpdateAsync(source);
 
             return new SuccessDataResult<object>("Deleted");
         }

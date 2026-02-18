@@ -34,7 +34,7 @@ public class CategoryGetByCommand : IRequest<IDataResult<CategoryDto>>
 
         public async Task<IDataResult<CategoryDto>> Handle(CategoryGetByCommand request, CancellationToken cancellationToken)
         {
-            var source = await _categoryDal.GetAsync(i => i.Id == request.Id);
+            var source = await _categoryDal.GetAsync(i => i.Id == request.Id && !i.IsDeleted);
             if (source == null)
                 return new ErrorDataResult<CategoryDto>("Record not found", HttpStatusCode.NotFound);
 

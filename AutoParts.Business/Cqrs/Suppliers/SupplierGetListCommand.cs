@@ -46,14 +46,14 @@ public class SupplierGetListCommand : IRequest<IDataResult<object>>
                 return new ErrorDataResult<object>("Form validation error", HttpStatusCode.BadRequest,
                     validationOfForm.Errors.Select(e => e.ErrorMessage).ToList());
 
-            Expression<Func<Supplier, bool>>? filter = null;
+            Expression<Func<Supplier, bool>> filter = x => !x.IsDeleted;
             if (!string.IsNullOrWhiteSpace(request.Form.Search))
             {
                 var s = request.Form.Search.Trim().ToLower();
-                filter = x => x.Name.ToLower().Contains(s)
+                filter = x => !x.IsDeleted && (x.Name.ToLower().Contains(s)
                     || (x.Phone != null && x.Phone.ToLower().Contains(s))
                     || (x.Email != null && x.Email.ToLower().Contains(s))
-                    || (x.Address != null && x.Address.ToLower().Contains(s));
+                    || (x.Address != null && x.Address.ToLower().Contains(s)));
             }
 
             var source = await _supplierDal.GetAllPagedAsync(filter, request.Form.PageNumber, request.Form.ViewSize);

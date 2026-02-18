@@ -46,11 +46,11 @@ public class CategoryGetListCommand : IRequest<IDataResult<object>>
                 return new ErrorDataResult<object>("Form validation error", HttpStatusCode.BadRequest,
                     validationOfForm.Errors.Select(e => e.ErrorMessage).ToList());
 
-            Expression<Func<Category, bool>>? filter = null;
+            Expression<Func<Category, bool>>? filter = c => !c.IsDeleted;
             if (!string.IsNullOrWhiteSpace(request.Form.Search))
             {
                 var s = request.Form.Search.Trim().ToLower();
-                filter = c => c.Name.ToLower().Contains(s);
+                filter = c => !c.IsDeleted && c.Name.ToLower().Contains(s);
             }
 
             var source = await _categoryDal.GetAllPagedAsync(filter, request.Form.PageNumber, request.Form.ViewSize);

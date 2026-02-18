@@ -1,66 +1,63 @@
 using System.Linq.Expressions;
 using System.Net;
 using AutoMapper;
-using AutoParts.Core.GeneralHelpers;
 using AutoParts.Core.Results;
 using AutoParts.DataAccess.Dals;
 using AutoParts.DataAccess.Models.DatabaseModels;
 using AutoParts.DataAccess.Models.DtoModels;
-using AutoParts.DataAccess.Models.DtoModels.Manufacturer;
+using AutoParts.DataAccess.Models.DtoModels.Product;
 using FluentValidation;
 using MediatR;
 
-namespace AutoParts.Business.Cqrs.Manufacturers;
+namespace AutoParts.Business.Cqrs.Products;
 
-public class ManufacturerGetListCommand : IRequest<IDataResult<object>>
+public class ProductGetListCommand : IRequest<IDataResult<object>>
 {
     public PaginationFormDto Form { get; }
 
-    public ManufacturerGetListCommand(PaginationFormDto form)
+    public ProductGetListCommand(PaginationFormDto form)
     {
         Form = form;
     }
 
-    public class ManufacturerGetListCommandHandler : IRequestHandler<ManufacturerGetListCommand, IDataResult<object>>
+    public class ProductGetListCommandHandler : IRequestHandler<ProductGetListCommand, IDataResult<object>>
     {
-        #region DI
-
-        private readonly IManufacturerDal _manufacturerDal;
+        private readonly IProductDal _productDal;
         private readonly IValidator<PaginationFormDto> _validator;
         private readonly IMapper _mapper;
 
-        public ManufacturerGetListCommandHandler(IManufacturerDal manufacturerDal,
+        public ProductGetListCommandHandler(IProductDal productDal,
             IValidator<PaginationFormDto> validator, IMapper mapper)
         {
-            _manufacturerDal = manufacturerDal;
+            _productDal = productDal;
             _validator = validator;
             _mapper = mapper;
         }
 
-        #endregion
-
-        public async Task<IDataResult<object>> Handle(ManufacturerGetListCommand request, CancellationToken cancellationToken)
+        public async Task<IDataResult<object>> Handle(ProductGetListCommand request, CancellationToken cancellationToken)
         {
             var validationOfForm = await _validator.ValidateAsync(request.Form, cancellationToken);
             if (!validationOfForm.IsValid)
                 return new ErrorDataResult<object>("Form validation error", HttpStatusCode.BadRequest,
                     validationOfForm.Errors.Select(e => e.ErrorMessage).ToList());
 
-            Expression<Func<Manufacturer, bool>> filter = m => !m.IsDeleted;
+            Expression<Func<Product, bool>>? filter = null;
             if (!string.IsNullOrWhiteSpace(request.Form.Search))
             {
                 var s = request.Form.Search.Trim().ToLower();
-                filter = m => !m.IsDeleted && (m.Name.ToLower().Contains(s) || (m.Country != null && m.Country.ToLower().Contains(s)));
+                filter = p => p.Name.ToLower().Contains(s)
+                    || p.Sku.ToLower().Contains(s)
+                    || (p.Description != null && p.Description.ToLower().Contains(s));
             }
 
-            var source = await _manufacturerDal.GetAllPagedAsync(filter, request.Form.PageNumber, request.Form.ViewSize);
+            var source = await _productDal.GetPagedWithIncludesAsync(filter, request.Form.PageNumber, request.Form.ViewSize);
 
-            var manufacturers = source.Items.Select(i => _mapper.Map<ManufacturerDto>(i)).ToList();
+            var products = source.Items.Select(i => _mapper.Map<ProductDto>(i)).ToList();
 
-            return new SuccessDataResult<object>(new PaginationReturnListDto<ManufacturerDto>
+            return new SuccessDataResult<object>(new PaginationReturnListDto<ProductDto>
             {
-                Items = manufacturers,
-                Pagination = new PaginationReturnModel()
+                Items = products,
+                Pagination = new PaginationReturnModel
                 {
                     CurrentPage = request.Form.PageNumber,
                     PageSize = request.Form.ViewSize,
