@@ -3,6 +3,7 @@ using AutoParts.Business.Validators.Client;
 using AutoParts.Business.Validators.Manufacturer;
 using AutoParts.Business.Validators.Product;
 using AutoParts.Business.Validators.Supplier;
+using AutoParts.Business.Validators.ProductCompatibility;
 using AutoParts.Business.Validators.Vehicle;
 using AutoParts.Business.Validators.VehicleBrand;
 using AutoParts.Business.Validators.VehicleModel;
@@ -67,6 +68,12 @@ public static class FluentValidationServiceRegistrations
         #region Vehicle
 
         services.AddValidatorsFromAssemblyContaining<VehicleFormValidator>();
+
+        #endregion
+
+        #region ProductCompatibility
+
+        services.AddValidatorsFromAssemblyContaining<ProductCompatibilityFormValidator>();
 
         #endregion
         

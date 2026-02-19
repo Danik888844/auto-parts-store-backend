@@ -5,6 +5,7 @@ using AutoParts.DataAccess.Models.DtoModels.Manufacturer;
 using AutoParts.DataAccess.Models.DtoModels.Client;
 using AutoParts.DataAccess.Models.DtoModels.Product;
 using AutoParts.DataAccess.Models.DtoModels.Supplier;
+using AutoParts.DataAccess.Models.DtoModels.ProductCompatibility;
 using AutoParts.DataAccess.Models.DtoModels.Vehicle;
 using AutoParts.DataAccess.Models.DtoModels.VehicleBrand;
 using AutoParts.DataAccess.Models.DtoModels.VehicleModel;
@@ -45,6 +46,9 @@ public static class AutoMapServiceRegistrations
 
             config.CreateMap<Vehicle, VehicleDto>().ReverseMap();
             config.CreateMap<Vehicle, VehicleFormDto>().ReverseMap();
+
+            config.CreateMap<ProductCompatibility, ProductCompatibilityDto>().ReverseMap();
+            config.CreateMap<ProductCompatibilityFormDto, ProductCompatibility>();
         },
         NullLoggerFactory.Instance).CreateMapper());
 
