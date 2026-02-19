@@ -6,6 +6,10 @@ using AutoParts.DataAccess.Models.DtoModels.Client;
 using AutoParts.DataAccess.Models.DtoModels.Product;
 using AutoParts.DataAccess.Models.DtoModels.Supplier;
 using AutoParts.DataAccess.Models.DtoModels.ProductCompatibility;
+using AutoParts.DataAccess.Models.DtoModels.Sale;
+using AutoParts.DataAccess.Models.DtoModels.SaleItem;
+using AutoParts.DataAccess.Models.DtoModels.Stock;
+using AutoParts.DataAccess.Models.DtoModels.StockMovement;
 using AutoParts.DataAccess.Models.DtoModels.Vehicle;
 using AutoParts.DataAccess.Models.DtoModels.VehicleBrand;
 using AutoParts.DataAccess.Models.DtoModels.VehicleModel;
@@ -49,6 +53,30 @@ public static class AutoMapServiceRegistrations
 
             config.CreateMap<ProductCompatibility, ProductCompatibilityDto>().ReverseMap();
             config.CreateMap<ProductCompatibilityFormDto, ProductCompatibility>();
+
+            config.CreateMap<Stock, StockDto>()
+                .ForMember(d => d.Product, o => o.MapFrom(s => s.Product != null ? new ProductDto
+                {
+                    Id = s.Product.Id,
+                    Sku = s.Product.Sku,
+                    Name = s.Product.Name,
+                    CategoryId = s.Product.CategoryId,
+                    ManufacturerId = s.Product.ManufacturerId,
+                    Price = s.Product.Price,
+                    PurchasePrice = s.Product.PurchasePrice,
+                    Description = s.Product.Description,
+                    IsActive = s.Product.IsActive,
+                    CreatedDate = s.Product.CreatedDate,
+                    ModifiedDate = s.Product.ModifiedDate,
+                    IsDeleted = s.Product.IsDeleted
+                } : null));
+            config.CreateMap<StockMovement, StockMovementDto>().ReverseMap();
+            config.CreateMap<StockMovementFormDto, StockMovement>();
+
+            config.CreateMap<Sale, SaleDto>().ReverseMap();
+            config.CreateMap<SaleItem, SaleItemDto>()
+                .ForMember(d => d.ProductSku, o => o.MapFrom(s => s.Product != null ? s.Product.Sku : ""))
+                .ForMember(d => d.ProductName, o => o.MapFrom(s => s.Product != null ? s.Product.Name : ""));
         },
         NullLoggerFactory.Instance).CreateMapper());
 

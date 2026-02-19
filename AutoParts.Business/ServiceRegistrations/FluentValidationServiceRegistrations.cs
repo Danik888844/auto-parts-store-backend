@@ -4,6 +4,9 @@ using AutoParts.Business.Validators.Manufacturer;
 using AutoParts.Business.Validators.Product;
 using AutoParts.Business.Validators.Supplier;
 using AutoParts.Business.Validators.ProductCompatibility;
+using AutoParts.Business.Validators.Sale;
+using AutoParts.Business.Validators.Stock;
+using AutoParts.Business.Validators.StockMovement;
 using AutoParts.Business.Validators.Vehicle;
 using AutoParts.Business.Validators.VehicleBrand;
 using AutoParts.Business.Validators.VehicleModel;
@@ -74,6 +77,25 @@ public static class FluentValidationServiceRegistrations
         #region ProductCompatibility
 
         services.AddValidatorsFromAssemblyContaining<ProductCompatibilityFormValidator>();
+
+        #endregion
+
+        #region StockMovement
+
+        services.AddValidatorsFromAssemblyContaining<StockMovementFormValidator>();
+        services.AddValidatorsFromAssemblyContaining<StockMovementListFormValidator>();
+
+        #endregion
+
+        #region Stock
+
+        services.AddValidatorsFromAssemblyContaining<StockListFormValidator>();
+
+        #endregion
+
+        #region Sale
+
+        services.AddValidatorsFromAssemblyContaining<SaleFormValidator>();
 
         #endregion
         
