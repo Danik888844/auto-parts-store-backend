@@ -38,7 +38,8 @@ public static class DalServiceRegistrations
         services.AddScoped<IStockDal, StockDal>();
         services.AddScoped<IStockMovementDal, StockMovementDal>();
         services.AddScoped<ISaleDal, SaleDal>();
-        
+        services.AddScoped<IReportDal, ReportDal>();
+
         #endregion
 
         return services;
