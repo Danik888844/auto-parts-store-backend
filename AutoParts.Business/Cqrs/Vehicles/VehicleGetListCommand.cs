@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Net;
 using AutoMapper;
+using AutoParts.Core.GeneralHelpers;
 using AutoParts.Core.Results;
 using AutoParts.DataAccess.Dals;
 using AutoParts.DataAccess.Models.DatabaseModels;
@@ -57,7 +58,7 @@ public class VehicleGetListCommand : IRequest<IDataResult<object>>
             return new SuccessDataResult<object>(new PaginationReturnListDto<VehicleDto>
             {
                 Items = items,
-                Pagination = new PaginationReturnModel
+                Pagination = new PaginationReturnModel()
                 {
                     CurrentPage = request.Form.PageNumber,
                     PageSize = request.Form.ViewSize,
