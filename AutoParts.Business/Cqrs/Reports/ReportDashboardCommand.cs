@@ -20,7 +20,9 @@ public class ReportDashboardCommand : IRequest<IDataResult<ReportDashboardDto>>
         {
             var now = DateTime.UtcNow;
             var todayStart = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0, DateTimeKind.Utc);
-            var weekStart = todayStart.AddDays(-7); // последние 7 дней
+            // Текущая календарная неделя (пн–вс): начало — понедельник 00:00
+            var daysSinceMonday = ((int)now.DayOfWeek - 1 + 7) % 7;
+            var weekStart = todayStart.AddDays(-daysSinceMonday);
 
             var data = await _reportDal.GetDashboardAsync(todayStart, weekStart);
 

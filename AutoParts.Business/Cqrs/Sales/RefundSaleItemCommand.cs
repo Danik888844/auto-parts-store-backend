@@ -53,6 +53,9 @@ public class RefundSaleItemCommand : IRequest<IDataResult<object>>
             if (sale.Status == SaleStatus.Refunded)
                 return new ErrorDataResult<object>("Sale is already fully refunded", HttpStatusCode.BadRequest);
 
+            if (sale.Status != SaleStatus.Completed)
+                return new ErrorDataResult<object>("Only completed sales can be refunded", HttpStatusCode.BadRequest);
+
             var item = sale.Items.FirstOrDefault(i => i.Id == request.SaleItemId && !i.IsDeleted);
             if (item == null)
                 return new ErrorDataResult<object>("Sale item not found", HttpStatusCode.NotFound);

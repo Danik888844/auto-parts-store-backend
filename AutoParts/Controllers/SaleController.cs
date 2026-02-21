@@ -43,6 +43,19 @@ public class SaleController : BaseController
         return Return(await _mediator.Send(new SaleCreateCommand(form, userId)));
     }
 
+    [HttpPost("{saleId}/complete")]
+    public async Task<IActionResult> CompleteSale([FromRoute] int saleId)
+    {
+        var userId = GetCurrentUserId(HttpContext);
+        return Return(await _mediator.Send(new CompleteSaleCommand(saleId, userId)));
+    }
+
+    [HttpPost("{saleId}/cancel")]
+    public async Task<IActionResult> CancelSale([FromRoute] int saleId)
+    {
+        return Return(await _mediator.Send(new CancelSaleCommand(saleId)));
+    }
+
     [HttpPost("{saleId}/refund")]
     public async Task<IActionResult> RefundSale([FromRoute] int saleId)
     {

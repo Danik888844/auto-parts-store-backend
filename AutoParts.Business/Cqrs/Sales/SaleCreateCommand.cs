@@ -61,14 +61,11 @@ public class SaleCreateCommand : IRequest<IDataResult<object>>
             if (products.Count != productIds.Count)
                 return new ErrorDataResult<object>("One or more products not found or inactive", HttpStatusCode.BadRequest);
 
-            var stocks = await _db.Set<Stock>()
-                .Where(s => productIds.Contains(s.ProductId) && !s.IsDeleted)
-                .ToDictionaryAsync(s => s.ProductId, cancellationToken);
-
             decimal total = 0;
             var saleItemsToAdd = new List<SaleItem>();
             var movementsToAdd = new List<StockMovement>();
             var stockUpdates = new List<Stock>();
+            var createAsDraft = request.Form.CreateAsDraft;
 
             foreach (var item in request.Form.Items)
             {
@@ -76,22 +73,6 @@ public class SaleCreateCommand : IRequest<IDataResult<object>>
                     return new ErrorDataResult<object>($"Invalid quantity for product {item.ProductId}", HttpStatusCode.BadRequest);
 
                 var product = products[item.ProductId];
-                if (!stocks.TryGetValue(item.ProductId, out var stock))
-                {
-                    stock = new Stock
-                    {
-                        ProductId = item.ProductId,
-                        Quantity = 0,
-                        CreatedDate = DateTime.UtcNow.Ticks,
-                        ModifiedDate = DateTime.UtcNow.Ticks
-                    };
-                    _db.Set<Stock>().Add(stock);
-                    stocks[item.ProductId] = stock;
-                }
-
-                if (stock.Quantity < item.Quantity)
-                    return new ErrorDataResult<object>($"Insufficient stock for product {product.Name} (SKU: {product.Sku}). Available: {stock.Quantity}, requested: {item.Quantity}", HttpStatusCode.BadRequest);
-
                 var price = product.Price;
                 var lineTotal = price * item.Quantity;
                 total += lineTotal;
@@ -105,35 +86,63 @@ public class SaleCreateCommand : IRequest<IDataResult<object>>
                     CreatedDate = DateTime.UtcNow.Ticks,
                     ModifiedDate = DateTime.UtcNow.Ticks
                 });
+            }
 
-                stock.Quantity -= item.Quantity;
-                stock.ModifiedDate = DateTime.UtcNow.Ticks;
-                stockUpdates.Add(stock);
+            if (!createAsDraft)
+            {
+                var stocks = await _db.Set<Stock>()
+                    .Where(s => productIds.Contains(s.ProductId) && !s.IsDeleted)
+                    .ToDictionaryAsync(s => s.ProductId, cancellationToken);
 
-                movementsToAdd.Add(new StockMovement
+                foreach (var item in request.Form.Items)
                 {
-                    ProductId = item.ProductId,
-                    Type = StockMovementType.Out,
-                    Quantity = item.Quantity,
-                    OccurredAt = DateTime.UtcNow,
-                    Reason = "Sale",
-                    DocumentNo = null,
-                    UserId = request.UserId,
-                    CreatedDate = DateTime.UtcNow.Ticks,
-                    ModifiedDate = DateTime.UtcNow.Ticks
-                });
+                    var product = products[item.ProductId];
+                    if (!stocks.TryGetValue(item.ProductId, out var stock))
+                    {
+                        stock = new Stock
+                        {
+                            ProductId = item.ProductId,
+                            Quantity = 0,
+                            CreatedDate = DateTime.UtcNow.Ticks,
+                            ModifiedDate = DateTime.UtcNow.Ticks
+                        };
+                        _db.Set<Stock>().Add(stock);
+                        stocks[item.ProductId] = stock;
+                    }
+
+                    if (stock.Quantity < item.Quantity)
+                        return new ErrorDataResult<object>($"Insufficient stock for product {product.Name} (SKU: {product.Sku}). Available: {stock.Quantity}, requested: {item.Quantity}", HttpStatusCode.BadRequest);
+
+                    stock.Quantity -= item.Quantity;
+                    stock.ModifiedDate = DateTime.UtcNow.Ticks;
+                    stockUpdates.Add(stock);
+
+                    movementsToAdd.Add(new StockMovement
+                    {
+                        ProductId = item.ProductId,
+                        Type = StockMovementType.Out,
+                        Quantity = item.Quantity,
+                        OccurredAt = DateTime.UtcNow,
+                        Reason = "Sale",
+                        DocumentNo = null,
+                        UserId = request.UserId,
+                        CreatedDate = DateTime.UtcNow.Ticks,
+                        ModifiedDate = DateTime.UtcNow.Ticks
+                    });
+                }
             }
 
             await using var transaction = await _db.Database.BeginTransactionAsync(cancellationToken);
             try
             {
+                var status = createAsDraft ? SaleStatus.Draft : SaleStatus.Completed;
                 var sale = new Sale
                 {
                     SoldAt = DateTime.UtcNow,
                     ClientId = request.Form.ClientId,
                     UserId = request.UserId ?? "",
                     PaymentType = request.Form.PaymentType,
-                    Status = SaleStatus.Completed,
+                    Status = status,
                     Total = total,
                     CreatedDate = DateTime.UtcNow.Ticks,
                     ModifiedDate = DateTime.UtcNow.Ticks
@@ -148,13 +157,16 @@ public class SaleCreateCommand : IRequest<IDataResult<object>>
                 }
                 await _db.SaveChangesAsync(cancellationToken);
 
-                foreach (var mov in movementsToAdd)
+                if (!createAsDraft)
                 {
-                    mov.DocumentNo = $"SALE-{sale.Id}";
-                    _db.Set<StockMovement>().Add(mov);
+                    foreach (var mov in movementsToAdd)
+                    {
+                        mov.DocumentNo = $"SALE-{sale.Id}";
+                        _db.Set<StockMovement>().Add(mov);
+                    }
+                    foreach (var st in stockUpdates)
+                        _db.Set<Stock>().Update(st);
                 }
-                foreach (var st in stockUpdates)
-                    _db.Set<Stock>().Update(st);
 
                 await _db.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
@@ -164,7 +176,8 @@ public class SaleCreateCommand : IRequest<IDataResult<object>>
                     .Include(s => s.Items)
                     .ThenInclude(i => i.Product)
                     .FirstAsync(s => s.Id == sale.Id, cancellationToken);
-                return new SuccessDataResult<object>(_mapper.Map<SaleDto>(withIncludes), "Sale created");
+                var message = createAsDraft ? "Draft sale created" : "Sale created";
+                return new SuccessDataResult<object>(_mapper.Map<SaleDto>(withIncludes), message);
             }
             catch
             {
