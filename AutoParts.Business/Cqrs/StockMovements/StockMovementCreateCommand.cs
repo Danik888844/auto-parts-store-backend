@@ -4,10 +4,12 @@ using AutoParts.Core.GeneralHelpers;
 using AutoParts.Core.Results;
 using AutoParts.DataAccess.Contexts;
 using AutoParts.DataAccess.Models.DatabaseModels;
+using AutoParts.DataAccess.Models.DtoModels.IdentityModels;
 using AutoParts.DataAccess.Models.DtoModels.StockMovement;
 using AutoParts.DataAccess.Models.Enums;
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace AutoParts.Business.Cqrs.StockMovements;
@@ -29,21 +31,30 @@ public class StockMovementCreateCommand : IRequest<IDataResult<object>>
         private readonly IValidator<StockMovementFormDto> _validator;
         private readonly IXssRepository _xssRepository;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public StockMovementCreateCommandHandler(
             AutoPartsStoreDb db,
             IValidator<StockMovementFormDto> validator,
             IXssRepository xssRepository,
-            IMapper mapper)
+            IMapper mapper,
+            IHttpContextAccessor httpContextAccessor)
         {
             _db = db;
             _validator = validator;
             _xssRepository = xssRepository;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<IDataResult<object>> Handle(StockMovementCreateCommand request, CancellationToken cancellationToken)
         {
+            var user = _httpContextAccessor.HttpContext?.User;
+            if (user?.IsInRole(UserRoleEnum.Seller) == true && request.Form.Type == StockMovementType.Adjust)
+                return new ErrorDataResult<object>(
+                    "Доступ запрещён: для роли «Продавец» разрешены только поступление и списание. Корректировка остатков доступна только администратору.",
+                    HttpStatusCode.Forbidden);
+
             var validation = await _validator.ValidateAsync(request.Form, cancellationToken);
             if (!validation.IsValid)
                 return new ErrorDataResult<object>("Form validation error", HttpStatusCode.BadRequest,

@@ -32,18 +32,21 @@ public class VehicleBrandController : BaseController
     }
 
     [HttpPost]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Create(VehicleBrandFormDto form)
     {
         return Return(await _mediator.Send(new VehicleBrandCreateCommand(form)));
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Edit([FromRoute] int id, VehicleBrandFormDto form)
     {
         return Return(await _mediator.Send(new VehicleBrandEditCommand(id, form)));
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {
         return Return(await _mediator.Send(new VehicleBrandDeleteCommand(id)));

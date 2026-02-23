@@ -178,7 +178,7 @@ public class ReportDal : IReportDal
             {
                 Id = s.Id,
                 SoldAt = s.SoldAt,
-                SellerName = null,
+                SellerName = s.UserId,
                 PaymentType = s.PaymentType,
                 Status = s.Status,
                 Total = s.Total,

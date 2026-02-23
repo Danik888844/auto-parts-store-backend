@@ -1,4 +1,4 @@
-using System.Net;
+using AutoParts.Business.Services.Identity;
 using AutoParts.Core.Results;
 using AutoParts.DataAccess.Dals;
 using AutoParts.DataAccess.Models.DtoModels.Report;
@@ -20,10 +20,12 @@ public class ReportSalesByPeriodExportCommand : IRequest<IDataResult<byte[]>>
     public class ReportSalesByPeriodExportCommandHandler : IRequestHandler<ReportSalesByPeriodExportCommand, IDataResult<byte[]>>
     {
         private readonly IReportDal _reportDal;
+        private readonly IIdentityUserApiClient _identityUserApi;
 
-        public ReportSalesByPeriodExportCommandHandler(IReportDal reportDal)
+        public ReportSalesByPeriodExportCommandHandler(IReportDal reportDal, IIdentityUserApiClient identityUserApi)
         {
             _reportDal = reportDal;
+            _identityUserApi = identityUserApi;
         }
 
         public async Task<IDataResult<byte[]>> Handle(ReportSalesByPeriodExportCommand request, CancellationToken cancellationToken)
@@ -33,6 +35,17 @@ public class ReportSalesByPeriodExportCommand : IRequest<IDataResult<byte[]>>
             filter.DateTo = DateTime.SpecifyKind(filter.DateTo.Date.AddDays(1), DateTimeKind.Utc);
 
             var rows = await _reportDal.GetSalesForPeriodExportAsync(filter, cancellationToken);
+
+            var userIds = rows.Select(r => r.SellerName).Where(s => !string.IsNullOrEmpty(s)).Distinct().ToList();
+            if (userIds.Count > 0)
+            {
+                var displayNames = await _identityUserApi.GetDisplayNamesAsync(userIds, cancellationToken);
+                foreach (var r in rows)
+                {
+                    if (!string.IsNullOrEmpty(r.SellerName) && displayNames.TryGetValue(r.SellerName, out var name))
+                        r.SellerName = name;
+                }
+            }
 
             using var workbook = new XLWorkbook();
             var sheet = workbook.AddWorksheet("Продажи за период");

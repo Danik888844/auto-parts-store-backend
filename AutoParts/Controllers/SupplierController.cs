@@ -36,18 +36,21 @@ public class SupplierController : BaseController
     }
 
     [HttpPost]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Create(SupplierFormDto form)
     {
         return Return(await _mediator.Send(new SupplierCreateCommand(form)));
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Edit([FromRoute] int id, SupplierFormDto form)
     {
         return Return(await _mediator.Send(new SupplierEditCommand(id, form)));
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {
         return Return(await _mediator.Send(new SupplierDeleteCommand(id)));

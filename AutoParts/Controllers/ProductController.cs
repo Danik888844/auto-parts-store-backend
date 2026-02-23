@@ -38,18 +38,21 @@ public class ProductController : BaseController
     }
 
     [HttpPost]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Create(ProductFormCreateDto form)
     {
         return Return(await _mediator.Send(new ProductCreateCommand(form)));
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Edit([FromRoute] int id, ProductFormUpdateDto form)
     {
         return Return(await _mediator.Send(new ProductEditCommand(id, form)));
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {
         return Return(await _mediator.Send(new ProductDeleteCommand(id)));

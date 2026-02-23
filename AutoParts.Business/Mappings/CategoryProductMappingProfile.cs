@@ -57,7 +57,8 @@ public class CategoryProductMappingProfile : Profile
             })));
         CreateMap<Category, CategoryFormDto>().ReverseMap();
 
-        CreateMap<Product, ProductDto>()
+       CreateMap<Product, ProductDto>()
+            .ForMember(d => d.Compatibilities, o => o.Ignore())
             .ForMember(d => d.Category, o => o.MapFrom(s => s.Category == null ? null! : new CategoryDto
             {
                 Id = s.Category.Id,

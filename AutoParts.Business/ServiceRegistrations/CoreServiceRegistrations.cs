@@ -1,4 +1,5 @@
-﻿using System.Text;
+using System.Text;
+using AutoParts.Business.Services.Identity;
 using AutoParts.Core.GeneralHelpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
@@ -99,7 +100,20 @@ public static class CoreServiceRegistrations
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddSingleton<IXssRepository, XssRepository>();
         services.AddSingleton<IPaginationRepository, PaginationRepository>();
-        
+
+        var identityBaseUrl = configuration["Identity:BaseUrl"]?.TrimEnd('/');
+        if (!string.IsNullOrEmpty(identityBaseUrl))
+        {
+            services.AddHttpClient<IIdentityUserApiClient, IdentityUserApiClient>(client =>
+            {
+                client.BaseAddress = new Uri(identityBaseUrl + "/");
+            });
+        }
+        else
+        {
+            services.AddSingleton<IIdentityUserApiClient, IdentityUserApiClientStub>();
+        }
+
         return services;
     }
 }

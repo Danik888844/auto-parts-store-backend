@@ -1,4 +1,4 @@
-﻿using AutoParts.Business.Cqrs.Categories;
+using AutoParts.Business.Cqrs.Categories;
 using AutoParts.DataAccess.Models.DtoModels;
 using AutoParts.DataAccess.Models.DtoModels.Category;
 using MediatR;
@@ -36,18 +36,21 @@ public class CategoryController : BaseController
     }
     
     [HttpPost]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Create(CategoryFormDto form)
     {
         return Return(await _mediator.Send(new CategoryCreateCommand(form)));
     }
     
     [HttpPut("{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Edit([FromRoute] int id, CategoryFormDto form)
     {
         return Return(await _mediator.Send(new CategoryEditCommand(id, form)));
     }
     
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {
         return Return(await _mediator.Send(new CategoryDeleteCommand(id)));

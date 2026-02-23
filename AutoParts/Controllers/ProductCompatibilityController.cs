@@ -32,18 +32,21 @@ public class ProductCompatibilityController : BaseController
     }
 
     [HttpPost]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Create(ProductCompatibilityFormDto form)
     {
         return Return(await _mediator.Send(new ProductCompatibilityCreateCommand(form)));
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Edit([FromRoute] int id, ProductCompatibilityFormDto form)
     {
         return Return(await _mediator.Send(new ProductCompatibilityEditCommand(id, form)));
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {
         return Return(await _mediator.Send(new ProductCompatibilityDeleteCommand(id)));
