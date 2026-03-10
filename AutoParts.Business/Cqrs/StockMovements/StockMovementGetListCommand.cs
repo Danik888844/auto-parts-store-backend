@@ -1,11 +1,13 @@
 using System.Linq.Expressions;
 using System.Net;
 using AutoMapper;
+using AutoParts.Business.Services.Identity;
 using AutoParts.Core.GeneralHelpers;
 using AutoParts.Core.Results;
 using AutoParts.DataAccess.Dals;
 using AutoParts.DataAccess.Models.DatabaseModels;
 using AutoParts.DataAccess.Models.DtoModels;
+using AutoParts.DataAccess.Models.DtoModels.IdentityModels;
 using AutoParts.DataAccess.Models.DtoModels.StockMovement;
 using AutoParts.DataAccess.Models.Enums;
 using FluentValidation;
@@ -27,15 +29,18 @@ public class StockMovementGetListCommand : IRequest<IDataResult<object>>
         private readonly IStockMovementDal _dal;
         private readonly IValidator<StockMovementListFormDto> _validator;
         private readonly IMapper _mapper;
+        private readonly IIdentityUserApiClient _identityUserApi;
 
         public StockMovementGetListCommandHandler(
             IStockMovementDal dal,
             IValidator<StockMovementListFormDto> validator,
-            IMapper mapper)
+            IMapper mapper,
+            IIdentityUserApiClient identityUserApi)
         {
             _dal = dal;
             _validator = validator;
             _mapper = mapper;
+            _identityUserApi = identityUserApi;
         }
 
         public async Task<IDataResult<object>> Handle(StockMovementGetListCommand request, CancellationToken cancellationToken)
@@ -58,6 +63,31 @@ public class StockMovementGetListCommand : IRequest<IDataResult<object>>
 
             var source = await _dal.GetPagedWithIncludesAsync(filter, request.Form.PageNumber, request.Form.ViewSize);
             var items = source.Items.Select(i => _mapper.Map<StockMovementDto>(i)).ToList();
+
+            // Заполняем информацию о пользователях через Identity API
+            var userIds = items
+                .Select(i => i.UserId)
+                .Where(id => !string.IsNullOrEmpty(id))
+                .Distinct()
+                .ToList();
+
+            if (userIds.Count > 0)
+            {
+                var displayNames = await _identityUserApi.GetDisplayNamesAsync(userIds, cancellationToken);
+
+                foreach (var dto in items)
+                {
+                    if (!string.IsNullOrEmpty(dto.UserId) &&
+                        displayNames.TryGetValue(dto.UserId, out var name))
+                    {
+                        dto.UserDto = new UserDto
+                        {
+                            Id = dto.UserId!,
+                            UserName = name
+                        };
+                    }
+                }
+            }
 
             return new SuccessDataResult<object>(new PaginationReturnListDto<StockMovementDto>
             {
